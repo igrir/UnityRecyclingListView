@@ -12,7 +12,7 @@ public class RecyclingSampleSceneController : MonoBehaviour
     public bool AddData;
     public bool DelData;
 
-    List<string> sampleList = new List<string>();
+    List<RecyclingModel> sampleList = new List<RecyclingModel>();
 
     // Use this for initialization
     void Start()
@@ -32,7 +32,7 @@ public class RecyclingSampleSceneController : MonoBehaviour
         if (AddData)
         {
             AddData = false;
-            sampleList.Add(sampleList.Count.ToString());
+            sampleList.Add(new RecyclingModel() { Label = sampleList.Count.ToString(), Id = sampleList.Count.ToString() });
             recyclingContainer.SetLabelData(sampleList);
         }
 

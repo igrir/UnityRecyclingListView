@@ -17,7 +17,7 @@ public class RecyclingListController : MonoBehaviour
     private int _DataCount = 0;
     private int _PrefabCount = 0;
     private List<RecyclingButton> Buttons = new List<RecyclingButton>();
-    private List<string> _LabelData = new List<string>();
+    private List<RecyclingModel> _LabelData = new List<RecyclingModel>();
 
     private RectTransform _RTContainerTopPos;
     private RectTransform _RTContainerBottomPos;
@@ -25,11 +25,14 @@ public class RecyclingListController : MonoBehaviour
     private int _TopIndex;
     private int _PrefabTopIndex;
     private Coroutine _UpdatingRoutine;
-
     private bool initialized = false;
 
+    public delegate void _OnRecyclingButton(RecyclingButton button);
+    public _OnRecyclingButton OnButtonClicked;
+    public _OnRecyclingButton OnDataSet;
 
-    public void SetLabelData(List<string> labelData)
+
+    public void SetLabelData(List<RecyclingModel> labelData)
     {
         this._LabelData = labelData;
         if (labelData != null)
@@ -105,7 +108,7 @@ public class RecyclingListController : MonoBehaviour
                 currentButtonIndex = 0;
             }
             RecyclingButton currentButton = Buttons[currentButtonIndex];
-            
+
             // set visible
             if (dataIndex < _DataCount)
             {
@@ -138,12 +141,23 @@ public class RecyclingListController : MonoBehaviour
         if (_LabelData == null || _LabelData.Count <= dataIndex)
             return;
 
-        // check it's already unlocked
-        string targetWord = _LabelData[dataIndex];
-        currentButton.SetText(_LabelData[dataIndex]);
+        // set data
+        currentButton.Model = _LabelData[dataIndex];
+
+        // set text
+        string buttonLabel = _LabelData[dataIndex].Label;
+        currentButton.SetText(buttonLabel);
+
+        if (OnDataSet != null)
+        {
+            if (OnDataSet != null)
+                OnDataSet(currentButton);
+        }
+
         currentButton.OnClick = delegate
         {
-            Debug.Log("Clicked " + currentButton.CharText.text);
+            if (OnButtonClicked != null)
+                OnButtonClicked(currentButton);
         };
 
     }

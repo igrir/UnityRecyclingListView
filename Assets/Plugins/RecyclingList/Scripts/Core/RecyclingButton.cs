@@ -7,6 +7,8 @@ public class RecyclingButton : MonoBehaviour
 
     public Text CharText;
 
+    public RecyclingModel Model;
+
     Button _Button;
     public delegate void _OnClick();
     public _OnClick OnClick;
