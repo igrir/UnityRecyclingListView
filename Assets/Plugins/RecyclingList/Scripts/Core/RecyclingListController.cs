@@ -14,8 +14,8 @@ public class RecyclingListController : MonoBehaviour
     RectTransform _ScrollAreaRT;
     RectTransform _ContainerRT;
 
-    private int _DataCount = 3;
-    private int _PrefabCount = 3;
+    private int _DataCount = 0;
+    private int _PrefabCount = 0;
     private List<RecyclingButton> Buttons = new List<RecyclingButton>();
     private List<string> _LabelData = new List<string>();
 
@@ -26,22 +26,35 @@ public class RecyclingListController : MonoBehaviour
     private int _PrefabTopIndex;
     private Coroutine _UpdatingRoutine;
 
+    private bool initialized = false;
+
 
     public void SetLabelData(List<string> labelData)
     {
         this._LabelData = labelData;
-        this._DataCount = labelData.Count;
+        if (labelData != null)
+            this._DataCount = labelData.Count;
+
+        Init();
     }
 
     public void Init()
     {
-        GetReferences();
-        GetPrefab();
-        CalculateShownPrefabs();
-        FillPrefabs();
+        if (!initialized)
+        {
+            GetReferences();
+            GetPrefab();
+            CalculateShownPrefabs();
+            FillPrefabs();
+        }
+
         ResizeContainer();
 
+        if (_UpdatingRoutine != null)
+            StopCoroutine(_UpdatingRoutine);
         _UpdatingRoutine = StartCoroutine(UpdatingButtonPosition());
+
+        initialized = true;
     }
 
     //TODO: Masih belum dibuat, heheh.
@@ -61,6 +74,9 @@ public class RecyclingListController : MonoBehaviour
 
     private void UpdateButtonPositions()
     {
+        if (_DataCount <= 0)
+            RestackButtons(0, 0);
+
         _TopIndex = (int)(_ContainerRT.localPosition.y / PrefabRT.sizeDelta.y);
         if (_TopIndex >= 0 && _TopIndex < _DataCount)
         {
@@ -89,7 +105,7 @@ public class RecyclingListController : MonoBehaviour
                 currentButtonIndex = 0;
             }
             RecyclingButton currentButton = Buttons[currentButtonIndex];
-
+            
             // set visible
             if (dataIndex < _DataCount)
             {
@@ -119,6 +135,8 @@ public class RecyclingListController : MonoBehaviour
 
     private void SetButtonContent(RecyclingButton currentButton, int dataIndex)
     {
+        if (_LabelData == null || _LabelData.Count <= dataIndex)
+            return;
 
         // check it's already unlocked
         string targetWord = _LabelData[dataIndex];
@@ -181,7 +199,6 @@ public class RecyclingListController : MonoBehaviour
 
     private void CalculateShownPrefabs()
     {
-        Debug.Log(_ScrollAreaRT.sizeDelta.y + "/" + PrefabRT.sizeDelta.y);
         _PrefabCount = (int)Mathf.Ceil(_ScrollAreaRT.sizeDelta.y / PrefabRT.sizeDelta.y) + 1;
     }
 
